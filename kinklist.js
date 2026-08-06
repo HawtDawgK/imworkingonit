@@ -158,7 +158,10 @@ document.addEventListener('DOMContentLoaded', () => {
   // Load Preset List Files
   const loadPreset = (presetName) => {
     fetch(`${presetName}.txt`)
-      .then(res => res.text())
+      .then(res => {
+        if (!res.ok) throw new Error('File not found');
+        return res.text();
+      })
       .then(text => {
         document.getElementById('Kinks').value = text;
         kinksData = parseKinksText(text);
@@ -171,6 +174,35 @@ document.addEventListener('DOMContentLoaded', () => {
         applyHash();
       });
   };
+
+  // Export Feature
+  const exportBtn = document.getElementById('Export');
+  const loading = document.getElementById('Loading');
+
+  exportBtn.addEventListener('click', async () => {
+    exportBtn.style.display = 'none';
+    loading.style.display = 'inline-block';
+
+    try {
+      const inputList = document.getElementById('InputList');
+      const canvas = await html2canvas(inputList, {
+        backgroundColor: '#ffffff',
+        scale: 2
+      });
+
+      const imageURI = canvas.toDataURL('image/png');
+      const link = document.createElement('a');
+      link.download = 'pref-list.png';
+      link.href = imageURI;
+      link.click();
+    } catch (err) {
+      alert('Export failed. Please try again.');
+      console.error(err);
+    } finally {
+      loading.style.display = 'none';
+      exportBtn.style.display = 'inline-block';
+    }
+  });
 
   // Event Listeners & Modals
   document.getElementById('listType').addEventListener('change', (e) => {
