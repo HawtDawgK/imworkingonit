@@ -542,3 +542,7 @@ td + td { border-left-style:none }
 @media (max-height: 500px) {
 	#InputPrevious,#InputNext { display:none }
 }
+/* Make overlay visible when active */
+.overlay.active {
+	display: block !important;
+}
