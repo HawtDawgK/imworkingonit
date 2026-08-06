@@ -883,6 +883,12 @@ $(function(){
         $('#StartBtn').on('click', inputKinks.inputPopup.show);
         $('#InputCurrent .closePopup, #InputOverlay').on('click', function(){
             $popup.fadeOut();
-        });                    
+        });      
+        // Click handler for legend ? buttons
+  $(document).on('click', '.LegendDesc', function() {
+    var desc = $(this).attr('data-desc');
+    $('#Description').text(desc);
+    $('#DescriptionOverlay').addClass('active').show();
+  });
     })();
 });
