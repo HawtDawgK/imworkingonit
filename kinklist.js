@@ -886,10 +886,15 @@ $(function(){
         });      
 // Click handler for legend ? buttons
         $(document).on('click', '.LegendDesc', function(e){
-            e.stopPropagation();
+            e.stopPropagation(); // Prevents click from bubbling to document
             var desc = $(this).attr('data-desc');
             $('#Description').text(desc);
             $('#DescriptionOverlay').addClass('active');
+        });
+
+        // Close description popup when clicking anywhere on the overlay
+        $('#DescriptionOverlay').on('click', function(){
+            $(this).removeClass('active');
         });
     })();
 });
