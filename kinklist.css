@@ -548,14 +548,70 @@ td + td { border-left-style:none }
 .overlay.active {
 	display: block !important;
 }
-/* Force dark mode color inversion */
-html {
-    filter: invert(1) hue-rotate(180deg) !important;
-    background-color: #000 !important;
-    min-height: 100vh;
+/* --- TRUE DARK MODE --- */
+body {
+    background-color: #1a1a1a;
+    color: #e0e0e0;
 }
 
-/* Ensure popups and overlays stay dark */
-.overlay {
-    background-color: rgba(255, 255, 255, 0.8) !important;
+/* Table & Borders */
+th {
+    background-color: #333;
+    color: #fff;
+    border-color: #444;
+}
+td {
+    border-color: #444;
+}
+
+/* Choice Circles */
+.choice {
+    border-color: #888;
+}
+
+/* Popups, Text Areas & Overlays */
+#Description, 
+#EditOverlay #Kinks {
+    background-color: #2a2a2a;
+    color: #e0e0e0;
+    border: 1px solid #444;
+}
+
+/* The Popup Input Menu */
+#InputOverlay .widthWrapper #InputCurrent,
+#InputOverlay .widthWrapper .kink-simple {
+    background-color: #2a2a2a;
+    color: #e0e0e0;
+}
+
+/* Faded Next/Previous options */
+#InputOverlay .widthWrapper #InputPrevious .kink-simple:first-child,
+#InputOverlay .widthWrapper #InputNext .kink-simple:nth-child(3) { background-color: #111; }
+
+#InputOverlay .widthWrapper #InputPrevious .kink-simple:nth-child(2),
+#InputOverlay .widthWrapper #InputNext .kink-simple:nth-child(2) { background-color: #1a1a1a; }
+
+#InputOverlay .widthWrapper #InputPrevious .kink-simple:nth-child(3),
+#InputOverlay .widthWrapper #InputNext .kink-simple:first-child { background-color: #222; }
+
+/* Selection buttons inside input menu */
+#InputOverlay .widthWrapper #InputCurrent #InputValues .big-choice {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #e0e0e0;
+}
+#InputOverlay .widthWrapper #InputCurrent #InputValues .big-choice:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-color: #777;
+}
+
+/* URL Export Box */
+#URL {
+    background-color: #222;
+    color: #ccc;
+    border-color: #444;
+}
+
+/* Invert small black icons to white so they stand out on dark background */
+#Edit, #StartBtn, .KinkDesc {
+    filter: invert(1);
 }
