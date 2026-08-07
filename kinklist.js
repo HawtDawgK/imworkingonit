@@ -423,44 +423,57 @@ $(function(){
 $('#Loading').hide();
 
 try {
-    // 1. Create temporary canvas for inverted background and text
-    var tempCanvas = document.createElement('canvas');
-    tempCanvas.width = canvas.width;
-    tempCanvas.height = canvas.height;
-    var tempCtx = tempCanvas.getContext('2d');
+    // 1. Create a base canvas for inverted text and background
+    var baseCanvas = document.createElement('canvas');
+    baseCanvas.width = canvas.width;
+    baseCanvas.height = canvas.height;
+    var baseCtx = baseCanvas.getContext('2d');
 
-    // Fill dark background on temporary canvas
-    tempCtx.fillStyle = '#000000';
-    tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+    // Fill white base
+    baseCtx.fillStyle = '#FFFFFF';
+    baseCtx.fillRect(0, 0, baseCanvas.width, baseCanvas.height);
 
-    // Draw main canvas using 'difference' to invert standard text and white background
-    tempCtx.globalCompositeOperation = 'difference';
-    tempCtx.drawImage(canvas, 0, 0);
+    // Draw full initial canvas
+    baseCtx.drawImage(canvas, 0, 0);
 
-    // Reset composite operation to normal
-    tempCtx.globalCompositeOperation = 'source-over';
+    // 2. Create target canvas with dark background
+    var finalCanvas = document.createElement('canvas');
+    finalCanvas.width = canvas.width;
+    finalCanvas.height = canvas.height;
+    var finalCtx = finalCanvas.getContext('2d');
 
-    // 2. Re-draw ONLY the legend radio circles onto tempCtx
+    // Dark background (#0f0f0f)
+    finalCtx.fillStyle = '#0f0f0f';
+    finalCtx.fillRect(0, 0, finalCanvas.width, finalCanvas.height);
+
+    // Use 'difference' mode to invert standard black text to white
+    finalCtx.globalCompositeOperation = 'difference';
+    finalCtx.drawImage(baseCanvas, 0, 0);
+
+    // Switch back to normal drawing mode for colored circles
+    finalCtx.globalCompositeOperation = 'source-over';
+
+    // 3. Draw Legend circles with original colors
     var levels = Object.keys(colors);
-    var legendX = tempCanvas.width - 15 - (120 * levels.length);
+    var legendX = finalCanvas.width - 15 - (120 * levels.length);
     for (var l = 0; l < levels.length; l++) {
-        tempCtx.beginPath();
-        tempCtx.arc(legendX + (120 * l), 17, 8, 0, 2 * Math.PI, false);
-        tempCtx.fillStyle = colors[levels[l]];
-        tempCtx.fill();
-        tempCtx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
-        tempCtx.lineWidth = 1;
-        tempCtx.stroke();
+        finalCtx.beginPath();
+        finalCtx.arc(legendX + (120 * l), 17, 8, 0, 2 * Math.PI, false);
+        finalCtx.fillStyle = colors[levels[l]];
+        finalCtx.fill();
+        finalCtx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+        finalCtx.lineWidth = 1;
+        finalCtx.stroke();
     }
 
-    // 3. Re-draw ONLY the row item radio circles onto tempCtx
+    // 4. Draw Row circles with original colors
     for (var colIdx = 0; colIdx < columns.length; colIdx++) {
         var col = columns[colIdx];
         var colX = offsets.left + (columnWidth * colIdx);
-        
+
         for (var stackIdx = 0; stackIdx < col.drawStack.length; stackIdx++) {
             var item = col.drawStack[stackIdx];
-            
+
             if (item.type === 'kinkRow') {
                 for (var cIdx = 0; cIdx < item.data.choices.length; cIdx++) {
                     var choice = item.data.choices[cIdx];
@@ -469,21 +482,21 @@ try {
                     var circleX = 10 + colX + (cIdx * 20);
                     var circleY = item.y - 10;
 
-                    tempCtx.beginPath();
-                    tempCtx.arc(circleX, circleY, 8, 0, 2 * Math.PI, false);
-                    tempCtx.fillStyle = circleColor;
-                    tempCtx.fill();
-                    tempCtx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
-                    tempCtx.lineWidth = 1;
-                    tempCtx.stroke();
+                    finalCtx.beginPath();
+                    finalCtx.arc(circleX, circleY, 8, 0, 2 * Math.PI, false);
+                    finalCtx.fillStyle = circleColor;
+                    finalCtx.fill();
+                    finalCtx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+                    finalCtx.lineWidth = 1;
+                    finalCtx.stroke();
                 }
             }
         }
     }
 
-    // Export direct PNG download
-    var imageUrl = tempCanvas.toDataURL('image/png');
-    
+    // Trigger image download
+    var imageUrl = finalCanvas.toDataURL('image/png');
+
     var downloadLink = document.createElement('a');
     downloadLink.download = 'kinklist.png';
     downloadLink.href = imageUrl;
