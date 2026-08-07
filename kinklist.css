@@ -548,3 +548,8 @@ td + td { border-left-style:none }
 .overlay.active {
 	display: block !important;
 }
+/* Invert page colors (Dark Mode) */
+body {
+    filter: invert(1) hue-rotate(180deg);
+    background-color: #000;
+}
