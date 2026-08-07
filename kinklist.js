@@ -419,30 +419,25 @@ $(function(){
 
             //return $(canvas).insertBefore($('#InputList'));
 
-            // Send canvas to imgur
-            $.ajax({
-                url: 'https://api.imgur.com/3/image',
-                type: 'POST',
-                headers: {
-                    // Your application gets an imgurClientId from Imgur
-                    Authorization: 'Client-ID ' + imgurClientId,
-                    Accept: 'application/json'
-                },
-                data: {
-                    // convert the image data to base64
-                    image:  canvas.toDataURL().split(',')[1],
-                    type: 'base64'
-                },
-                success: function(result) {
-                    $('#Loading').hide();
-                    var url = 'https://i.imgur.com/' + result.data.id + '.png';
-                    $('#URL').val(url).fadeIn();
-                },
-                fail: function(){
-                    $('#Loading').hide();
-                    alert('Failed to upload to imgur, could not connect');
+// Generate direct PNG download instead of uploading to Imgur
+            $('#Loading').hide();
+
+            try {
+                var imageUrl = canvas.toDataURL('image/png');
+                
+                var downloadLink = document.createElement('a');
+                downloadLink.download = 'kinklist.png';
+                downloadLink.href = imageUrl;
+                document.body.appendChild(downloadLink);
+                downloadLink.click();
+                document.body.removeChild(downloadLink);
+
+                if ($('#URL').length) {
+                    $('#URL').val('Image downloaded directly to your device.').fadeIn();
                 }
-            });
+            } catch (err) {
+                alert('Could not generate PNG image: ' + err.message);
+            }
         },
         encode: function(base, input){
             var hashBase = inputKinks.hashChars.length;
