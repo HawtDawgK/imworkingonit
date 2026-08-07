@@ -548,8 +548,14 @@ td + td { border-left-style:none }
 .overlay.active {
 	display: block !important;
 }
-/* Invert page colors (Dark Mode) */
-body {
-    filter: invert(1) hue-rotate(180deg);
-    background-color: #000;
+/* Force dark mode color inversion */
+html {
+    filter: invert(1) hue-rotate(180deg) !important;
+    background-color: #000 !important;
+    min-height: 100vh;
+}
+
+/* Ensure popups and overlays stay dark */
+.overlay {
+    background-color: rgba(255, 255, 255, 0.8) !important;
 }
