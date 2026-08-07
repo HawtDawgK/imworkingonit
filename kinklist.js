@@ -422,15 +422,19 @@ $(function(){
 // Generate direct PNG download instead of uploading to Imgur
             $('#Loading').hide();
 
-            try {
-                // Create a temporary canvas to apply the color inversion filter
+try {
+                // Create a temporary canvas to construct a dark background
                 var tempCanvas = document.createElement('canvas');
                 tempCanvas.width = canvas.width;
                 tempCanvas.height = canvas.height;
                 var tempCtx = tempCanvas.getContext('2d');
 
-                // Invert light/dark while preserving original choice color hues
-                tempCtx.filter = 'invert(100%) hue-rotate(180deg)';
+                // 1. Fill dark background
+                tempCtx.fillStyle = '#0f0f0f';
+                tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+
+                // 2. Draw original canvas on top using 'difference' to invert only pure black/white text/lines
+                tempCtx.globalCompositeOperation = 'difference';
                 tempCtx.drawImage(canvas, 0, 0);
 
                 var imageUrl = tempCanvas.toDataURL('image/png');
