@@ -430,7 +430,6 @@ $(function(){
                 var tempCtx = tempCanvas.getContext('2d');
 
                 // Invert light/dark while preserving original choice color hues
-                tempCtx.filter = 'invert(100%) hue-rotate(180deg)';
                 tempCtx.drawImage(canvas, 0, 0);
 
                 var imageUrl = tempCanvas.toDataURL('image/png');
