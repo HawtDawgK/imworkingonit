@@ -423,79 +423,22 @@ $(function(){
 $('#Loading').hide();
 
 try {
-    // 1. Create a base canvas for inverted text and background
-    var baseCanvas = document.createElement('canvas');
-    baseCanvas.width = canvas.width;
-    baseCanvas.height = canvas.height;
-    var baseCtx = baseCanvas.getContext('2d');
+    // 1. Create a temporary canvas
+    var tempCanvas = document.createElement('canvas');
+    tempCanvas.width = canvas.width;
+    tempCanvas.height = canvas.height;
+    var tempCtx = tempCanvas.getContext('2d');
 
-    // Fill white base
-    baseCtx.fillStyle = '#FFFFFF';
-    baseCtx.fillRect(0, 0, baseCanvas.width, baseCanvas.height);
+    // 2. Fill dark background (#0f0f0f)
+    tempCtx.fillStyle = '#0f0f0f';
+    tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
 
-    // Draw full initial canvas
-    baseCtx.drawImage(canvas, 0, 0);
+    // 3. Draw original canvas using 'difference' to invert everything
+    tempCtx.globalCompositeOperation = 'difference';
+    tempCtx.drawImage(canvas, 0, 0);
 
-    // 2. Create target canvas with dark background
-    var finalCanvas = document.createElement('canvas');
-    finalCanvas.width = canvas.width;
-    finalCanvas.height = canvas.height;
-    var finalCtx = finalCanvas.getContext('2d');
-
-    // Dark background (#0f0f0f)
-    finalCtx.fillStyle = '#0f0f0f';
-    finalCtx.fillRect(0, 0, finalCanvas.width, finalCanvas.height);
-
-    // Use 'difference' mode to invert standard black text to white
-    finalCtx.globalCompositeOperation = 'difference';
-    finalCtx.drawImage(baseCanvas, 0, 0);
-
-    // Switch back to normal drawing mode for colored circles
-    finalCtx.globalCompositeOperation = 'source-over';
-
-    // 3. Draw Legend circles with original colors
-    var levels = Object.keys(colors);
-    var legendX = finalCanvas.width - 15 - (120 * levels.length);
-    for (var l = 0; l < levels.length; l++) {
-        finalCtx.beginPath();
-        finalCtx.arc(legendX + (120 * l), 17, 8, 0, 2 * Math.PI, false);
-        finalCtx.fillStyle = colors[levels[l]];
-        finalCtx.fill();
-        finalCtx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
-        finalCtx.lineWidth = 1;
-        finalCtx.stroke();
-    }
-
-    // 4. Draw Row circles with original colors
-    for (var colIdx = 0; colIdx < columns.length; colIdx++) {
-        var col = columns[colIdx];
-        var colX = offsets.left + (columnWidth * colIdx);
-
-        for (var stackIdx = 0; stackIdx < col.drawStack.length; stackIdx++) {
-            var item = col.drawStack[stackIdx];
-
-            if (item.type === 'kinkRow') {
-                for (var cIdx = 0; cIdx < item.data.choices.length; cIdx++) {
-                    var choice = item.data.choices[cIdx];
-                    var circleColor = colors[choice];
-
-                    var circleX = 10 + colX + (cIdx * 20);
-                    var circleY = item.y - 10;
-
-                    finalCtx.beginPath();
-                    finalCtx.arc(circleX, circleY, 8, 0, 2 * Math.PI, false);
-                    finalCtx.fillStyle = circleColor;
-                    finalCtx.fill();
-                    finalCtx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
-                    finalCtx.lineWidth = 1;
-                    finalCtx.stroke();
-                }
-            }
-        }
-    }
-
-    // Trigger image download
-    var imageUrl = finalCanvas.toDataURL('image/png');
+    // 4. Generate image and trigger download
+    var imageUrl = tempCanvas.toDataURL('image/png');
 
     var downloadLink = document.createElement('a');
     downloadLink.download = 'kinklist.png';
