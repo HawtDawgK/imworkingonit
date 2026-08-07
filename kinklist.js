@@ -896,5 +896,12 @@ $(function(){
         $('#DescriptionOverlay').on('click', function(){
             $(this).removeClass('active');
         });
+        // Temporarily hide buttons during export execution
+        $('#Export').on('click', function() {
+            $('body').addClass('exporting');
+            setTimeout(function() {
+                $('body').removeClass('exporting');
+            }, 3000);
+        });
     })();
 });
