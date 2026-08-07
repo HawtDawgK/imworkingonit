@@ -617,3 +617,16 @@ td {
     background-color: rgba(255, 255, 255, 0.2);
     border-radius: 3px;
 }
+/* Hide interactive icons from the canvas export engine so it doesn't hang */
+@media print {
+    .KinkDesc, #Edit, #StartBtn, #ExportWrapper {
+        display: none !important;
+    }
+}
+
+/* Fallback: Ensure buttons hide during canvas capturing */
+.exporting .KinkDesc,
+.exporting #Edit,
+.exporting #StartBtn {
+    display: none !important;
+}
