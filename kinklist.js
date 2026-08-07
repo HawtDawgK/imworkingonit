@@ -423,7 +423,17 @@ $(function(){
             $('#Loading').hide();
 
             try {
-                var imageUrl = canvas.toDataURL('image/png');
+                // Create a temporary canvas to apply the color inversion filter
+                var tempCanvas = document.createElement('canvas');
+                tempCanvas.width = canvas.width;
+                tempCanvas.height = canvas.height;
+                var tempCtx = tempCanvas.getContext('2d');
+
+                // Invert light/dark while preserving original choice color hues
+                tempCtx.filter = 'invert(100%) hue-rotate(180deg)';
+                tempCtx.drawImage(canvas, 0, 0);
+
+                var imageUrl = tempCanvas.toDataURL('image/png');
                 
                 var downloadLink = document.createElement('a');
                 downloadLink.download = 'kinklist.png';
