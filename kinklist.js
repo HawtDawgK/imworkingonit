@@ -419,25 +419,84 @@ $(function(){
 
             //return $(canvas).insertBefore($('#InputList'));
 
-// Generate direct PNG download instead of uploading to Imgur
-            $('#Loading').hide();
+// Hide loading overlay
+$('#Loading').hide();
 
-            try {
-                var imageUrl = canvas.toDataURL('image/png');
-                
-                var downloadLink = document.createElement('a');
-                downloadLink.download = 'kinklist.png';
-                downloadLink.href = imageUrl;
-                document.body.appendChild(downloadLink);
-                downloadLink.click();
-                document.body.removeChild(downloadLink);
+try {
+    // 1. Create temporary canvas for inverted background and text
+    var tempCanvas = document.createElement('canvas');
+    tempCanvas.width = canvas.width;
+    tempCanvas.height = canvas.height;
+    var tempCtx = tempCanvas.getContext('2d');
 
-                if ($('#URL').length) {
-                    $('#URL').val('Image downloaded directly to your device.').fadeIn();
+    // Fill dark background on temporary canvas
+    tempCtx.fillStyle = '#000000';
+    tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+
+    // Draw main canvas using 'difference' to invert standard text and white background
+    tempCtx.globalCompositeOperation = 'difference';
+    tempCtx.drawImage(canvas, 0, 0);
+
+    // Reset composite operation to normal
+    tempCtx.globalCompositeOperation = 'source-over';
+
+    // 2. Re-draw ONLY the legend radio circles onto tempCtx
+    var levels = Object.keys(colors);
+    var legendX = tempCanvas.width - 15 - (120 * levels.length);
+    for (var l = 0; l < levels.length; l++) {
+        tempCtx.beginPath();
+        tempCtx.arc(legendX + (120 * l), 17, 8, 0, 2 * Math.PI, false);
+        tempCtx.fillStyle = colors[levels[l]];
+        tempCtx.fill();
+        tempCtx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+        tempCtx.lineWidth = 1;
+        tempCtx.stroke();
+    }
+
+    // 3. Re-draw ONLY the row item radio circles onto tempCtx
+    for (var colIdx = 0; colIdx < columns.length; colIdx++) {
+        var col = columns[colIdx];
+        var colX = offsets.left + (columnWidth * colIdx);
+        
+        for (var stackIdx = 0; stackIdx < col.drawStack.length; stackIdx++) {
+            var item = col.drawStack[stackIdx];
+            
+            if (item.type === 'kinkRow') {
+                for (var cIdx = 0; cIdx < item.data.choices.length; cIdx++) {
+                    var choice = item.data.choices[cIdx];
+                    var circleColor = colors[choice];
+
+                    var circleX = 10 + colX + (cIdx * 20);
+                    var circleY = item.y - 10;
+
+                    tempCtx.beginPath();
+                    tempCtx.arc(circleX, circleY, 8, 0, 2 * Math.PI, false);
+                    tempCtx.fillStyle = circleColor;
+                    tempCtx.fill();
+                    tempCtx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+                    tempCtx.lineWidth = 1;
+                    tempCtx.stroke();
                 }
-            } catch (err) {
-                alert('Could not generate PNG image: ' + err.message);
             }
+        }
+    }
+
+    // Export direct PNG download
+    var imageUrl = tempCanvas.toDataURL('image/png');
+    
+    var downloadLink = document.createElement('a');
+    downloadLink.download = 'kinklist.png';
+    downloadLink.href = imageUrl;
+    document.body.appendChild(downloadLink);
+    downloadLink.click();
+    document.body.removeChild(downloadLink);
+
+    if ($('#URL').length) {
+        $('#URL').val('Image downloaded directly to your device.').fadeIn();
+    }
+} catch (err) {
+    alert('Could not generate PNG image: ' + err.message);
+}
         },
         encode: function(base, input){
             var hashBase = inputKinks.hashChars.length;
