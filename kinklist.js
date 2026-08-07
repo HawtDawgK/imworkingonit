@@ -419,40 +419,35 @@ $(function(){
 
             //return $(canvas).insertBefore($('#InputList'));
 
-// Hide loading overlay
-$('#Loading').hide();
+// Generate direct PNG download instead of uploading to Imgur
+            $('#Loading').hide();
 
-try {
-    // 1. Create a temporary canvas
-    var tempCanvas = document.createElement('canvas');
-    tempCanvas.width = canvas.width;
-    tempCanvas.height = canvas.height;
-    var tempCtx = tempCanvas.getContext('2d');
+            try {
+                // Create a temporary canvas to apply the color inversion filter
+                var tempCanvas = document.createElement('canvas');
+                tempCanvas.width = canvas.width;
+                tempCanvas.height = canvas.height;
+                var tempCtx = tempCanvas.getContext('2d');
 
-    // 2. Fill dark background (#0f0f0f)
-    tempCtx.fillStyle = '#0f0f0f';
-    tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+                // Invert light/dark while preserving original choice color hues
+                tempCtx.filter = 'invert(100%) hue-rotate(180deg)';
+                tempCtx.drawImage(canvas, 0, 0);
 
-    // 3. Draw original canvas using 'difference' to invert everything
-    tempCtx.globalCompositeOperation = 'difference';
-    tempCtx.drawImage(canvas, 0, 0);
+                var imageUrl = tempCanvas.toDataURL('image/png');
+                
+                var downloadLink = document.createElement('a');
+                downloadLink.download = 'kinklist.png';
+                downloadLink.href = imageUrl;
+                document.body.appendChild(downloadLink);
+                downloadLink.click();
+                document.body.removeChild(downloadLink);
 
-    // 4. Generate image and trigger download
-    var imageUrl = tempCanvas.toDataURL('image/png');
-
-    var downloadLink = document.createElement('a');
-    downloadLink.download = 'kinklist.png';
-    downloadLink.href = imageUrl;
-    document.body.appendChild(downloadLink);
-    downloadLink.click();
-    document.body.removeChild(downloadLink);
-
-    if ($('#URL').length) {
-        $('#URL').val('Image downloaded directly to your device.').fadeIn();
-    }
-} catch (err) {
-    alert('Could not generate PNG image: ' + err.message);
-}
+                if ($('#URL').length) {
+                    $('#URL').val('Image downloaded directly to your device.').fadeIn();
+                }
+            } catch (err) {
+                alert('Could not generate PNG image: ' + err.message);
+            }
         },
         encode: function(base, input){
             var hashBase = inputKinks.hashChars.length;
