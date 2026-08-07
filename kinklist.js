@@ -884,11 +884,12 @@ $(function(){
         $('#InputCurrent .closePopup, #InputOverlay').on('click', function(){
             $popup.fadeOut();
         });      
-        // Click handler for legend ? buttons
-  $(document).on('click', '.LegendDesc', function() {
-    var desc = $(this).attr('data-desc');
-    $('#Description').text(desc);
-    $('#DescriptionOverlay').addClass('active').show();
-  });
+// Click handler for legend ? buttons
+        $(document).on('click', '.LegendDesc', function(e){
+            e.stopPropagation();
+            var desc = $(this).attr('data-desc');
+            $('#Description').text(desc);
+            $('#DescriptionOverlay').addClass('active');
+        });
     })();
 });
