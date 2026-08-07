@@ -423,22 +423,41 @@ $(function(){
             $('#Loading').hide();
 
 try {
-                // Create a temporary canvas to construct a dark background
-                var tempCanvas = document.createElement('canvas');
-                tempCanvas.width = canvas.width;
-                tempCanvas.height = canvas.height;
-                var tempCtx = tempCanvas.getContext('2d');
+                // 1. Get pixel data from original canvas
+                var ctx = canvas.getContext('2d');
+                var imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                var data = imgData.data;
 
-                // 1. Fill dark background
-                tempCtx.fillStyle = '#0f0f0f';
-                tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+                // 2. Loop through pixels: turn black/dark gray text & lines into crisp white
+                for (var i = 0; i < data.length; i += 4) {
+                    var r = data[i];
+                    var g = data[i + 1];
+                    var b = data[i + 2];
+                    var a = data[i + 3];
 
-                // 2. Draw original canvas on top using 'difference' to invert only pure black/white text/lines
-                tempCtx.globalCompositeOperation = 'difference';
-                tempCtx.drawImage(canvas, 0, 0);
+                    // Check if pixel is visible and nearly black (text, headers, lines)
+                    if (a > 0 && r < 50 && g < 50 && b < 50) {
+                        data[i] = 255;     // Red -> White
+                        data[i + 1] = 255; // Green -> White
+                        data[i + 2] = 255; // Blue -> White
+                    }
+                }
 
-                var imageUrl = tempCanvas.toDataURL('image/png');
-                
+                // 3. Put white text back onto a new output canvas
+                var darkCanvas = document.createElement('canvas');
+                darkCanvas.width = canvas.width;
+                darkCanvas.height = canvas.height;
+                var darkCtx = darkCanvas.getContext('2d');
+
+                darkCtx.putImageData(imgData, 0, 0);
+
+                // 4. Fill a solid dark background behind everything
+                darkCtx.globalCompositeOperation = 'destination-over';
+                darkCtx.fillStyle = '#0f0f0f';
+                darkCtx.fillRect(0, 0, darkCanvas.width, darkCanvas.height);
+
+                // 5. Trigger PNG Download
+                var imageUrl = darkCanvas.toDataURL('image/png');
                 var downloadLink = document.createElement('a');
                 downloadLink.download = 'kinklist.png';
                 downloadLink.href = imageUrl;
